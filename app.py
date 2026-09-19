@@ -4,386 +4,547 @@ import pandas as pd
 from urllib.parse import quote
 
 st.set_page_config(
-    page_title="Pharma Drug Database",
+    page_title="Pharma Drug Formulation Database",
     page_icon="💊",
     layout="wide"
 )
+
 
 DRUGS = [
     {
         "name": "Paracetamol",
         "class": "Analgesic / Antipyretic",
-        "forms": "Tablet, Capsule, Syrup, Suspension, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Pain and fever"
+        "forms": ["Tablet", "Capsule", "Syrup", "Suspension", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Pain and fever",
+        "solubility": "Moderately soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture and excessive heat"
     },
     {
         "name": "Ibuprofen",
         "class": "NSAID",
-        "forms": "Tablet, Capsule, Suspension, Gel",
-        "routes": "Oral, Topical",
-        "uses": "Pain, inflammation and fever"
+        "forms": ["Tablet", "Capsule", "Suspension", "Gel"],
+        "routes": ["Oral", "Topical"],
+        "uses": "Pain, inflammation and fever",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture and light"
     },
     {
         "name": "Aspirin",
         "class": "NSAID / Antiplatelet",
-        "forms": "Tablet, Chewable Tablet",
-        "routes": "Oral",
-        "uses": "Pain, fever and antiplatelet therapy"
+        "forms": ["Tablet", "Chewable Tablet"],
+        "routes": ["Oral"],
+        "uses": "Pain, fever and antiplatelet therapy",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low to medium dose",
+        "stability": "Moisture sensitive; hydrolysis may occur"
     },
     {
         "name": "Naproxen",
         "class": "NSAID",
-        "forms": "Tablet, Capsule, Suspension",
-        "routes": "Oral",
-        "uses": "Pain and inflammation"
+        "forms": ["Tablet", "Capsule", "Suspension"],
+        "routes": ["Oral"],
+        "uses": "Pain and inflammation",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Diclofenac",
         "class": "NSAID",
-        "forms": "Tablet, Capsule, Gel, Injection, Suppository",
-        "routes": "Oral, Topical, Intramuscular, Rectal",
-        "uses": "Pain and inflammation"
+        "forms": ["Tablet", "Capsule", "Gel", "Injection", "Suppository"],
+        "routes": ["Oral", "Topical", "Intramuscular", "Rectal"],
+        "uses": "Pain and inflammation",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture and light"
     },
     {
         "name": "Amoxicillin",
         "class": "Penicillin Antibiotic",
-        "forms": "Tablet, Capsule, Oral Suspension",
-        "routes": "Oral",
-        "uses": "Bacterial infections"
+        "forms": ["Tablet", "Capsule", "Oral Suspension"],
+        "routes": ["Oral"],
+        "uses": "Bacterial infections",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "High dose",
+        "stability": "Moisture and temperature controlled storage"
     },
     {
         "name": "Azithromycin",
         "class": "Macrolide Antibiotic",
-        "forms": "Tablet, Capsule, Oral Suspension, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Bacterial infections"
+        "forms": ["Tablet", "Capsule", "Oral Suspension", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Bacterial infections",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Ciprofloxacin",
         "class": "Fluoroquinolone Antibiotic",
-        "forms": "Tablet, Oral Suspension, Eye Drops, Injection",
-        "routes": "Oral, Ophthalmic, Intravenous",
-        "uses": "Bacterial infections"
+        "forms": ["Tablet", "Oral Suspension", "Eye Drops", "Injection"],
+        "routes": ["Oral", "Ophthalmic", "Intravenous"],
+        "uses": "Bacterial infections",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Levofloxacin",
         "class": "Fluoroquinolone Antibiotic",
-        "forms": "Tablet, Eye Drops, Injection",
-        "routes": "Oral, Ophthalmic, Intravenous",
-        "uses": "Bacterial infections"
+        "forms": ["Tablet", "Eye Drops", "Injection"],
+        "routes": ["Oral", "Ophthalmic", "Intravenous"],
+        "uses": "Bacterial infections",
+        "solubility": "Soluble in acidic conditions",
+        "dose_type": "Medium dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Doxycycline",
         "class": "Tetracycline Antibiotic",
-        "forms": "Tablet, Capsule",
-        "routes": "Oral",
-        "uses": "Bacterial infections"
+        "forms": ["Tablet", "Capsule"],
+        "routes": ["Oral"],
+        "uses": "Bacterial infections",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low to medium dose",
+        "stability": "Protect from moisture and light"
     },
     {
         "name": "Metronidazole",
         "class": "Antibacterial / Antiprotozoal",
-        "forms": "Tablet, Suspension, Gel, Injection",
-        "routes": "Oral, Topical, Intravenous",
-        "uses": "Anaerobic and protozoal infections"
+        "forms": ["Tablet", "Suspension", "Gel", "Injection"],
+        "routes": ["Oral", "Topical", "Intravenous"],
+        "uses": "Anaerobic and protozoal infections",
+        "solubility": "Sparingly soluble in water",
+        "dose_type": "High dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Tinidazole",
         "class": "Antiprotozoal",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Protozoal and anaerobic infections"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Protozoal and anaerobic infections",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "High dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Cefixime",
         "class": "Cephalosporin Antibiotic",
-        "forms": "Tablet, Capsule, Oral Suspension",
-        "routes": "Oral",
-        "uses": "Bacterial infections"
+        "forms": ["Tablet", "Capsule", "Oral Suspension"],
+        "routes": ["Oral"],
+        "uses": "Bacterial infections",
+        "solubility": "Poorly soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Cephalexin",
         "class": "Cephalosporin Antibiotic",
-        "forms": "Capsule, Tablet, Oral Suspension",
-        "routes": "Oral",
-        "uses": "Bacterial infections"
+        "forms": ["Capsule", "Tablet", "Oral Suspension"],
+        "routes": ["Oral"],
+        "uses": "Bacterial infections",
+        "solubility": "Soluble in water",
+        "dose_type": "High dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Ceftriaxone",
         "class": "Cephalosporin Antibiotic",
-        "forms": "Injection",
-        "routes": "Intravenous, Intramuscular",
-        "uses": "Serious bacterial infections"
+        "forms": ["Injection"],
+        "routes": ["Intravenous", "Intramuscular"],
+        "uses": "Serious bacterial infections",
+        "solubility": "Soluble in water",
+        "dose_type": "High dose",
+        "stability": "Sterile product; protect from light"
     },
     {
         "name": "Pantoprazole",
         "class": "Proton Pump Inhibitor",
-        "forms": "Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Acid-related disorders"
+        "forms": ["Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Acid-related disorders",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Acid sensitive; enteric protection may be required"
     },
     {
         "name": "Omeprazole",
         "class": "Proton Pump Inhibitor",
-        "forms": "Capsule, Tablet, Powder",
-        "routes": "Oral",
-        "uses": "Acid-related disorders"
+        "forms": ["Capsule", "Tablet", "Powder"],
+        "routes": ["Oral"],
+        "uses": "Acid-related disorders",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Acid and moisture sensitive"
     },
     {
         "name": "Esomeprazole",
         "class": "Proton Pump Inhibitor",
-        "forms": "Tablet, Capsule, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Acid-related disorders"
+        "forms": ["Tablet", "Capsule", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Acid-related disorders",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Acid sensitive"
     },
     {
         "name": "Famotidine",
         "class": "H2-Receptor Antagonist",
-        "forms": "Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Acid-related disorders"
+        "forms": ["Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Acid-related disorders",
+        "solubility": "Freely soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Ondansetron",
         "class": "Antiemetic",
-        "forms": "Tablet, Orally Disintegrating Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Nausea and vomiting"
+        "forms": ["Tablet", "Orally Disintegrating Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Nausea and vomiting",
+        "solubility": "Soluble depending on salt form",
+        "dose_type": "Low dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Domperidone",
         "class": "Gastroprokinetic / Antiemetic",
-        "forms": "Tablet, Suspension",
-        "routes": "Oral",
-        "uses": "Nausea and gastric motility disorders"
+        "forms": ["Tablet", "Suspension"],
+        "routes": ["Oral"],
+        "uses": "Nausea and gastric motility disorders",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Metoclopramide",
         "class": "Antiemetic / Gastroprokinetic",
-        "forms": "Tablet, Injection, Oral Solution",
-        "routes": "Oral, Intravenous, Intramuscular",
-        "uses": "Nausea and vomiting"
+        "forms": ["Tablet", "Injection", "Oral Solution"],
+        "routes": ["Oral", "Intravenous", "Intramuscular"],
+        "uses": "Nausea and vomiting",
+        "solubility": "Soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Loperamide",
         "class": "Antidiarrheal",
-        "forms": "Capsule, Tablet, Oral Solution",
-        "routes": "Oral",
-        "uses": "Diarrhea"
+        "forms": ["Capsule", "Tablet", "Oral Solution"],
+        "routes": ["Oral"],
+        "uses": "Diarrhea",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Very low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Lactulose",
         "class": "Osmotic Laxative",
-        "forms": "Oral Solution, Syrup",
-        "routes": "Oral",
-        "uses": "Constipation and hepatic encephalopathy"
+        "forms": ["Oral Solution", "Syrup"],
+        "routes": ["Oral"],
+        "uses": "Constipation and hepatic encephalopathy",
+        "solubility": "Freely soluble in water",
+        "dose_type": "High volume liquid dose",
+        "stability": "Protect from excessive heat"
     },
     {
         "name": "Metformin",
         "class": "Biguanide Antidiabetic",
-        "forms": "Tablet, Extended-Release Tablet",
-        "routes": "Oral",
-        "uses": "Type 2 diabetes"
+        "forms": ["Tablet", "Extended-Release Tablet"],
+        "routes": ["Oral"],
+        "uses": "Type 2 diabetes",
+        "solubility": "Freely soluble in water",
+        "dose_type": "High dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Glimepiride",
         "class": "Sulfonylurea Antidiabetic",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Type 2 diabetes"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Type 2 diabetes",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Very low dose",
+        "stability": "Protect from moisture and light"
     },
     {
         "name": "Gliclazide",
         "class": "Sulfonylurea Antidiabetic",
-        "forms": "Tablet, Modified-Release Tablet",
-        "routes": "Oral",
-        "uses": "Type 2 diabetes"
+        "forms": ["Tablet", "Modified-Release Tablet"],
+        "routes": ["Oral"],
+        "uses": "Type 2 diabetes",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Sitagliptin",
         "class": "DPP-4 Inhibitor",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Type 2 diabetes"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Type 2 diabetes",
+        "solubility": "Soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Dapagliflozin",
         "class": "SGLT2 Inhibitor",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Diabetes and selected cardiovascular/renal conditions"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Diabetes and selected cardiovascular or renal conditions",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Levothyroxine",
         "class": "Thyroid Hormone",
-        "forms": "Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Hypothyroidism"
+        "forms": ["Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Hypothyroidism",
+        "solubility": "Very slightly soluble in water",
+        "dose_type": "Very low dose",
+        "stability": "Sensitive to light and moisture"
     },
     {
         "name": "Amlodipine",
         "class": "Calcium Channel Blocker",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Hypertension and angina"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Hypertension and angina",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Very low dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Atenolol",
         "class": "Beta Blocker",
-        "forms": "Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Hypertension and cardiovascular conditions"
+        "forms": ["Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Hypertension and cardiovascular conditions",
+        "solubility": "Soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Metoprolol",
         "class": "Beta Blocker",
-        "forms": "Tablet, Extended-Release Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Hypertension and cardiovascular conditions"
+        "forms": ["Tablet", "Extended-Release Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Hypertension and cardiovascular conditions",
+        "solubility": "Soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Losartan",
         "class": "Angiotensin Receptor Blocker",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Hypertension"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Hypertension",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Telmisartan",
         "class": "Angiotensin Receptor Blocker",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Hypertension"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Hypertension",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Enalapril",
         "class": "ACE Inhibitor",
-        "forms": "Tablet, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Hypertension and heart failure"
+        "forms": ["Tablet", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Hypertension and heart failure",
+        "solubility": "Soluble depending on salt form",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Furosemide",
         "class": "Loop Diuretic",
-        "forms": "Tablet, Oral Solution, Injection",
-        "routes": "Oral, Intravenous, Intramuscular",
-        "uses": "Edema and hypertension"
+        "forms": ["Tablet", "Oral Solution", "Injection"],
+        "routes": ["Oral", "Intravenous", "Intramuscular"],
+        "uses": "Edema and hypertension",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low to medium dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Hydrochlorothiazide",
         "class": "Thiazide Diuretic",
-        "forms": "Tablet, Capsule",
-        "routes": "Oral",
-        "uses": "Hypertension and edema"
+        "forms": ["Tablet", "Capsule"],
+        "routes": ["Oral"],
+        "uses": "Hypertension and edema",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Spironolactone",
         "class": "Potassium-Sparing Diuretic",
-        "forms": "Tablet, Oral Suspension",
-        "routes": "Oral",
-        "uses": "Edema and selected cardiovascular conditions"
+        "forms": ["Tablet", "Oral Suspension"],
+        "routes": ["Oral"],
+        "uses": "Edema and selected cardiovascular conditions",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Atorvastatin",
         "class": "Statin",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Dyslipidemia"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Dyslipidemia",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from light and moisture"
     },
     {
         "name": "Rosuvastatin",
         "class": "Statin",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Dyslipidemia"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Dyslipidemia",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Clopidogrel",
         "class": "Antiplatelet",
-        "forms": "Tablet",
-        "routes": "Oral",
-        "uses": "Prevention of thrombotic cardiovascular events"
+        "forms": ["Tablet"],
+        "routes": ["Oral"],
+        "uses": "Prevention of thrombotic cardiovascular events",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Salbutamol",
         "class": "Bronchodilator",
-        "forms": "Tablet, Syrup, Inhaler, Nebulizer Solution",
-        "routes": "Oral, Inhalation",
-        "uses": "Bronchospasm and asthma"
+        "forms": ["Tablet", "Syrup", "Inhaler", "Nebulizer Solution"],
+        "routes": ["Oral", "Inhalation"],
+        "uses": "Bronchospasm and asthma",
+        "solubility": "Soluble depending on salt form",
+        "dose_type": "Low dose",
+        "stability": "Protect from light"
     },
     {
         "name": "Budesonide",
         "class": "Corticosteroid",
-        "forms": "Inhaler, Nebulizer Suspension, Capsule",
-        "routes": "Inhalation, Oral",
-        "uses": "Respiratory and inflammatory conditions"
+        "forms": ["Inhaler", "Nebulizer Suspension", "Capsule"],
+        "routes": ["Inhalation", "Oral"],
+        "uses": "Respiratory and inflammatory conditions",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Very low dose",
+        "stability": "Protect from light and moisture"
     },
     {
         "name": "Montelukast",
         "class": "Leukotriene Receptor Antagonist",
-        "forms": "Tablet, Chewable Tablet, Granules",
-        "routes": "Oral",
-        "uses": "Asthma and allergic rhinitis"
+        "forms": ["Tablet", "Chewable Tablet", "Granules"],
+        "routes": ["Oral"],
+        "uses": "Asthma and allergic rhinitis",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Cetirizine",
         "class": "Antihistamine",
-        "forms": "Tablet, Syrup, Oral Solution",
-        "routes": "Oral",
-        "uses": "Allergic conditions"
+        "forms": ["Tablet", "Syrup", "Oral Solution"],
+        "routes": ["Oral"],
+        "uses": "Allergic conditions",
+        "solubility": "Soluble depending on salt form",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Loratadine",
         "class": "Antihistamine",
-        "forms": "Tablet, Syrup",
-        "routes": "Oral",
-        "uses": "Allergic conditions"
+        "forms": ["Tablet", "Syrup"],
+        "routes": ["Oral"],
+        "uses": "Allergic conditions",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Fexofenadine",
         "class": "Antihistamine",
-        "forms": "Tablet, Oral Suspension",
-        "routes": "Oral",
-        "uses": "Allergic conditions"
+        "forms": ["Tablet", "Oral Suspension"],
+        "routes": ["Oral"],
+        "uses": "Allergic conditions",
+        "solubility": "Soluble depending on salt form",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Mupirocin",
         "class": "Topical Antibiotic",
-        "forms": "Cream, Ointment",
-        "routes": "Topical",
-        "uses": "Local bacterial skin infections"
+        "forms": ["Cream", "Ointment"],
+        "routes": ["Topical"],
+        "uses": "Local bacterial skin infections",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Topical",
+        "stability": "Protect from heat"
     },
     {
         "name": "Clotrimazole",
         "class": "Antifungal",
-        "forms": "Cream, Lotion, Tablet, Vaginal Tablet",
-        "routes": "Topical, Vaginal",
-        "uses": "Fungal infections"
+        "forms": ["Cream", "Lotion", "Tablet", "Vaginal Tablet"],
+        "routes": ["Topical", "Vaginal"],
+        "uses": "Fungal infections",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Topical",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Fluconazole",
         "class": "Triazole Antifungal",
-        "forms": "Tablet, Capsule, Oral Suspension, Injection",
-        "routes": "Oral, Intravenous",
-        "uses": "Fungal infections"
+        "forms": ["Tablet", "Capsule", "Oral Suspension", "Injection"],
+        "routes": ["Oral", "Intravenous"],
+        "uses": "Fungal infections",
+        "solubility": "Soluble in water",
+        "dose_type": "Medium dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Acyclovir",
         "class": "Antiviral",
-        "forms": "Tablet, Cream, Ointment, Injection",
-        "routes": "Oral, Topical, Intravenous",
-        "uses": "Herpes virus infections"
+        "forms": ["Tablet", "Cream", "Ointment", "Injection"],
+        "routes": ["Oral", "Topical", "Intravenous"],
+        "uses": "Herpes virus infections",
+        "solubility": "Slightly soluble in water",
+        "dose_type": "Medium to high dose",
+        "stability": "Protect from moisture"
     },
     {
         "name": "Hydrocortisone",
         "class": "Corticosteroid",
-        "forms": "Cream, Ointment, Tablet, Injection",
-        "routes": "Topical, Oral, Intravenous",
-        "uses": "Inflammatory and allergic conditions"
+        "forms": ["Cream", "Ointment", "Tablet", "Injection"],
+        "routes": ["Topical", "Oral", "Intravenous"],
+        "uses": "Inflammatory and allergic conditions",
+        "solubility": "Practically insoluble in water",
+        "dose_type": "Low dose",
+        "stability": "Protect from light"
     }
 ]
 
-EXCIPIENTS = {
+
+BASE_EXCIPIENTS = {
     "Diluent": [
         "Microcrystalline cellulose",
         "Lactose",
@@ -417,7 +578,7 @@ EXCIPIENTS = {
     "Preservative": [
         "Methylparaben",
         "Propylparaben",
-        "Benzalkonium chloride"
+        "Potassium sorbate"
     ],
     "Vehicle": [
         "Purified water",
@@ -427,252 +588,20 @@ EXCIPIENTS = {
     "Film former": [
         "Hypromellose",
         "Polyvinyl alcohol"
+    ],
+    "Sweetener": [
+        "Sucrose",
+        "Sorbitol",
+        "Sucralose"
+    ],
+    "Buffer or pH adjuster": [
+        "Phosphate buffer",
+        "Citrate buffer",
+        "Sodium hydroxide",
+        "Citric acid"
     ]
 }
 
 
-def safe_text(value):
-    if isinstance(value, list):
-        return " ".join(str(item) for item in value)
-    return str(value) if value else "Not available"
-
-
-@st.cache_data(ttl=86400, show_spinner=False)
-def get_pubchem_data(drug_name):
-    url = (
-        "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/"
-        + quote(drug_name)
-        + "/property/MolecularFormula,MolecularWeight,"
-        "CanonicalSMILES,IsomericSMILES/JSON"
-    )
-
-    try:
-        response = requests.get(url, timeout=20)
-
-        if response.status_code != 200:
-            return {}
-
-        properties = response.json()["PropertyTable"]["Properties"][0]
-
-        return {
-            "PubChem CID": properties.get("CID", "Not available"),
-            "Molecular Formula": properties.get(
-                "MolecularFormula", "Not available"
-            ),
-            "Molecular Weight": properties.get(
-                "MolecularWeight", "Not available"
-            ),
-            "Canonical SMILES": properties.get(
-                "ConnectivitySMILES", "Not available"
-            ),
-            "Isomeric SMILES": properties.get(
-                "SMILES", "Not available"
-            )
-        }
-
-    except Exception as error:
-        return {"PubChem Error": str(error)}
-
-
-@st.cache_data(ttl=86400, show_spinner=False)
-def get_fda_data(drug_name):
-    search_url = (
-        "https://api.fda.gov/drug/label.json?"
-        "search=openfda.generic_name:"
-        + quote(drug_name.lower())
-        + "&limit=1"
-    )
-
-    try:
-        response = requests.get(search_url, timeout=20)
-
-        if response.status_code != 200:
-            return {
-                "FDA Status": "No matching public label found"
-            }
-
-        result = response.json()["results"][0]
-
-        return {
-            "FDA Status": "Label found",
-            "FDA Indications": safe_text(
-                result.get("indications_and_usage")
-            ),
-            "FDA Warnings": safe_text(
-                result.get("warnings")
-            ),
-            "FDA Dosage Text": safe_text(
-                result.get("dosage_and_administration")
-            ),
-            "FDA Routes": safe_text(
-                result.get("route")
-            ),
-            "FDA Manufacturers": safe_text(
-                result.get("manufacturer_name")
-            ),
-            "FDA Label URL": "https://open.fda.gov/apis/drug/label/"
-        }
-
-    except Exception as error:
-        return {"FDA Error": str(error)}
-
-
-def find_drug(drug_name):
-    for drug in DRUGS:
-        if drug["name"] == drug_name:
-            return drug
-    return None
-
-
-st.title("💊 Pharmaceutical Drug Database")
-
-st.info(
-    "This application is intended for educational and research use. "
-    "Always verify information from current official product labels."
-)
-
-st.sidebar.header("Search Options")
-
-search_text = st.sidebar.text_input(
-    "Search drug name",
-    placeholder="Example: Paracetamol"
-)
-
-if search_text:
-    filtered_drugs = [
-        drug for drug in DRUGS
-        if search_text.lower() in drug["name"].lower()
-    ]
-else:
-    filtered_drugs = DRUGS
-
-drug_names = [drug["name"] for drug in filtered_drugs]
-
-if not drug_names:
-    st.error("No drug found.")
-    st.stop()
-
-selected_name = st.sidebar.selectbox(
-    "Select a drug",
-    drug_names
-)
-
-selected_drug = find_drug(selected_name)
-
-st.header(selected_drug["name"])
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("Drug class", selected_drug["class"])
-
-with col2:
-    st.metric("Routes", selected_drug["routes"])
-
-with col3:
-    st.metric("Dosage forms", len(
-        selected_drug["forms"].split(",")
-    ))
-
-st.subheader("Basic Drug Information")
-
-basic_data = pd.DataFrame(
-    [
-        ["API name", selected_drug["name"]],
-        ["Therapeutic class", selected_drug["class"]],
-        ["Common uses", selected_drug["uses"]],
-        ["Possible dosage forms", selected_drug["forms"]],
-        ["Routes", selected_drug["routes"]]
-    ],
-    columns=["Field", "Information"]
-)
-
-st.table(basic_data)
-
-if st.button("Fetch API Data"):
-    with st.spinner("Fetching PubChem and openFDA data..."):
-        pubchem = get_pubchem_data(selected_name)
-        fda = get_fda_data(selected_name)
-
-    st.subheader("PubChem Chemical Properties")
-    st.json(pubchem)
-
-    st.subheader("openFDA Label Data")
-
-    if "FDA Indications" in fda:
-        st.write("#### Indications and Usage")
-        st.write(fda["FDA Indications"])
-
-        st.write("#### Warnings")
-        st.write(fda["FDA Warnings"])
-
-        st.write("#### Dosage and Administration")
-        st.write(fda["FDA Dosage Text"])
-
-        st.write("#### Routes")
-        st.write(fda["FDA Routes"])
-
-        st.write("#### Manufacturers")
-        st.write(fda["FDA Manufacturers"])
-
-        st.caption(
-            "The displayed label information is retrieved from openFDA. "
-            "Verify the current official label before relying on it."
-        )
-    else:
-        st.warning(fda.get("FDA Status", "FDA data unavailable"))
-
-st.subheader("Educational Excipient Categories")
-
-excipient_rows = []
-
-for category, materials in EXCIPIENTS.items():
-    excipient_rows.append(
-        {
-            "Category": category,
-            "Common examples": ", ".join(materials),
-            "Selection note": (
-                "Selection depends on API properties, dosage form, "
-                "compatibility, stability and quality target."
-            )
-        }
-    )
-
-st.dataframe(
-    pd.DataFrame(excipient_rows),
-    use_container_width=True,
-    hide_index=True
-)
-
-st.subheader("High-Level Development Workflow")
-
-workflow = [
-    "Preformulation study",
-    "API-excipient compatibility assessment",
-    "Dosage-form selection",
-    "Excipient screening",
-    "Laboratory formulation trials",
-    "Evaluation of critical quality attributes",
-    "Stability study",
-    "Analytical method verification",
-    "Documentation and regulatory review"
-]
-
-for step_number, step in enumerate(workflow, start=1):
-    st.write(f"{step_number}. {step}")
-
-st.subheader("References")
-
-st.markdown(
-    """
-- [PubChem PUG REST](https://pubchem.ncbi.nlm.nih.gov/docs/pug-rest-tutorial)
-- [openFDA Drug Label API](https://open.fda.gov/apis/drug/label/)
-- [openFDA API Documentation](https://open.fda.gov/apis/)
-- [ICH Q8 Pharmaceutical Development](https://www.ema.europa.eu/en/documents/scientific-guideline/note-guidance-pharmaceutical-development_en.pdf)
-"""
-)
-
-st.caption(
-    "Educational application only. Not a prescribing, diagnostic or "
-    "GMP manufacturing instruction system."
-)
+def find_drug(name):
+    for
